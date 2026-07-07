@@ -17,6 +17,11 @@
   .thbadge { position:absolute; top:10px; right:10px; font-size:8.5px; font-weight:700; padding:2px 6px; border-radius:8px; }
   .tip { cursor:help; border-bottom:1px dotted currentColor; }
   .kpi3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .filterBtn { cursor:pointer; background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:4px 11px; color:#6B7280; font-size:10.5px; font-family:'Inter',Arial,sans-serif; }
+  .filterBtn:disabled { cursor:not-allowed; opacity:0.6; }
+  .filterMenu { display:none; position:absolute; top:28px; left:0; background:#fff; border:1px solid #E5E7EB; border-radius:10px; box-shadow:0 4px 14px rgba(0,0,0,0.10); padding:4px; z-index:20; min-width:140px; }
+  .filterOpt { padding:6px 10px; border-radius:7px; font-size:10.5px; color:#21337D; cursor:pointer; white-space:nowrap; }
+  .filterOpt:hover { background:#F0EEE1; }
 </style>
 </head>
 <body>
@@ -43,11 +48,50 @@
     </div>
   </div>
   <div style="display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap;">
-    <div style="background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:4px 11px; color:#6B7280; font-size:10.5px;">📅 Jun 2026 ▾</div>
-    <div id="filterBU" style="background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:4px 11px; color:#6B7280; font-size:10.5px;">🏫 BU/FU: Semua ▾</div>
-    <div style="background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:4px 11px; color:#6B7280; font-size:10.5px;">🪜 Level/Posisi: Semua ▾</div>
-    <div style="background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:4px 11px; color:#6B7280; font-size:10.5px;">⚧ Gender: Semua ▾</div>
-    <div style="background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:4px 11px; color:#6B7280; font-size:10.5px;">✅ Status: Aktif ▾</div>
+    <div class="filterWrap" style="position:relative;">
+      <button class="filterBtn" onclick="toggleFilter('fBulan')">📅 <span id="fBulanLabel">Jun 2026</span> ▾</button>
+      <div id="fBulan" class="filterMenu">
+        <div class="filterOpt" onclick="selectFilter('fBulan','Apr 2026')">Apr 2026</div>
+        <div class="filterOpt" onclick="selectFilter('fBulan','Mei 2026')">Mei 2026</div>
+        <div class="filterOpt" onclick="selectFilter('fBulan','Jun 2026')">Jun 2026</div>
+      </div>
+    </div>
+    <div class="filterWrap" style="position:relative;">
+      <button id="fBUBtn" class="filterBtn" onclick="toggleFilter('fBU')">🏫 BU/FU: <span id="fBULabel">Semua</span> ▾</button>
+      <div id="fBU" class="filterMenu">
+        <div class="filterOpt" onclick="selectBU('Semua')">Semua BU/FU</div>
+        <div class="filterOpt" onclick="selectBU('HR')">HR</div>
+        <div class="filterOpt" onclick="selectBU('Finance')">Finance</div>
+        <div class="filterOpt" onclick="selectBU('Marketing')">Marketing</div>
+        <div class="filterOpt" onclick="selectBU('Operations')">Operations</div>
+        <div class="filterOpt" onclick="selectBU('IT')">IT</div>
+      </div>
+    </div>
+    <div class="filterWrap" style="position:relative;">
+      <button class="filterBtn" onclick="toggleFilter('fLevel')">🪜 Level/Posisi: <span id="fLevelLabel">Semua</span> ▾</button>
+      <div id="fLevel" class="filterMenu">
+        <div class="filterOpt" onclick="selectFilter('fLevel','Semua')">Semua Level</div>
+        <div class="filterOpt" onclick="selectFilter('fLevel','Staff')">Staff</div>
+        <div class="filterOpt" onclick="selectFilter('fLevel','Supervisor')">Supervisor</div>
+        <div class="filterOpt" onclick="selectFilter('fLevel','Manager+')">Manager+</div>
+      </div>
+    </div>
+    <div class="filterWrap" style="position:relative;">
+      <button class="filterBtn" onclick="toggleFilter('fGender')">⚧ Gender: <span id="fGenderLabel">Semua</span> ▾</button>
+      <div id="fGender" class="filterMenu">
+        <div class="filterOpt" onclick="selectFilter('fGender','Semua')">Semua</div>
+        <div class="filterOpt" onclick="selectFilter('fGender','Perempuan')">Perempuan</div>
+        <div class="filterOpt" onclick="selectFilter('fGender','Laki-laki')">Laki-laki</div>
+      </div>
+    </div>
+    <div class="filterWrap" style="position:relative;">
+      <button class="filterBtn" onclick="toggleFilter('fStatus')">✅ Status: <span id="fStatusLabel">Aktif</span> ▾</button>
+      <div id="fStatus" class="filterMenu">
+        <div class="filterOpt" onclick="selectFilter('fStatus','Aktif')">Aktif</div>
+        <div class="filterOpt" onclick="selectFilter('fStatus','Non-Aktif')">Non-Aktif</div>
+        <div class="filterOpt" onclick="selectFilter('fStatus','Semua')">Semua</div>
+      </div>
+    </div>
   </div>
   <div style="display:flex; gap:3px; background:#F0EEE1; border-radius:10px; padding:3px; margin-bottom:14px; flex-wrap:wrap;">
     <button id="btn-overview" class="tabbtn" onclick="showTab('overview')" style="border:none; cursor:pointer; padding:6px 12px; border-radius:8px; font-weight:700; font-size:11px; background:#21337D; color:#fff;">Overview</button>
@@ -63,18 +107,18 @@
     <div class="kpi3" style="margin-bottom:14px;">
       <div onclick="showTab('turnover')" style="cursor:pointer; background:#EAEDF7; border:1px solid #D6DCF2; border-radius:12px; padding:14px;">
         <div style="display:flex; justify-content:space-between;"><span style="color:#6B7280; font-size:11px;">Total Karyawan</span><span>👥</span></div>
-        <div style="font-size:24px; font-weight:800; margin-top:6px;">742</div>
+        <div id="ovTotalKaryawan" style="font-size:24px; font-weight:800; margin-top:6px;">742</div>
         <div style="font-size:10.5px; color:#6B7280; margin-top:2px;">Status: Aktif</div>
       </div>
       <div onclick="showTab('turnover')" style="cursor:pointer; position:relative; background:#FFF0F6; border:1px solid #FBD9E8; border-radius:12px; padding:14px;">
         <div style="display:flex; justify-content:space-between;"><span style="color:#B5486A; font-size:11px;">Turnover Rate (Rolling 12 Bln) <span class="tip" title="Jumlah karyawan keluar dibagi rata-rata headcount, berjalan 12 bulan terakhir.">ⓘ</span></span><span>🔄</span></div>
-        <div style="font-size:24px; font-weight:800; margin-top:6px;">18.4%</div>
+        <div id="ovTurnoverValue" style="font-size:24px; font-weight:800; margin-top:6px;">18.4%</div>
         <div style="font-size:10.5px; color:#B5486A; margin-top:2px;">n=137 / 12 bulan terakhir</div>
-        <div class="thbadge badge-waspada">● Waspada</div>
+        <div id="ovTurnoverBadge" class="thbadge badge-waspada">● Waspada</div>
       </div>
       <div style="position:relative; background:#FFF8E0; border:1px solid #F5E4A8; border-radius:12px; padding:14px;">
         <div style="display:flex; justify-content:space-between;"><span style="color:#8A6A2E; font-size:11px;">Engagement Score <span class="tip" title="Skor rata-rata hasil survey engagement terakhir, skala 0-100.">ⓘ</span></span><span>💬</span></div>
-        <div style="font-size:24px; font-weight:800; margin-top:6px;">78</div>
+        <div id="ovEngagementValue" style="font-size:24px; font-weight:800; margin-top:6px;">78</div>
         <div style="font-size:10.5px; color:#9A7A3E; margin-top:2px;">Response rate 86%</div>
         <div class="thbadge badge-aman">● Aman</div>
       </div>
@@ -93,13 +137,13 @@
       <div style="font-weight:700; margin-bottom:8px; font-size:12.5px;">Ringkasan per BU/FU</div>
       <table style="width:100%; border-collapse:collapse; font-size:11px;">
         <tr style="color:#6B7280; text-align:left; border-bottom:1px solid #E5E7EB;"><th style="padding:6px 4px;">BU/FU</th><th style="padding:6px 4px;">Headcount</th><th style="padding:6px 4px;">Turnover Bln Ini</th><th style="padding:6px 4px;">Median Tenure</th><th style="padding:6px 4px;">Avg Tenure</th></tr>
-        <tr style="border-bottom:1px solid #F0F2FA;"><td style="padding:6px 4px;">HR</td><td style="padding:6px 4px;">145</td><td style="padding:6px 4px;">1.4% (n=2)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">2.6 th</td><td style="padding:6px 4px; color:#6B7280;">3.1 th</td></tr>
-        <tr style="border-bottom:1px solid #F0F2FA;"><td style="padding:6px 4px;">Finance</td><td style="padding:6px 4px;">118</td><td style="padding:6px 4px;">1.7% (n=2)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">2.4 th</td><td style="padding:6px 4px; color:#6B7280;">2.9 th</td></tr>
-        <tr style="border-bottom:1px solid #F0F2FA; background:#FFF0F6;"><td style="padding:6px 4px;">Marketing</td><td style="padding:6px 4px;">152</td><td style="padding:6px 4px;">2.6% (n=4)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">1.6 th</td><td style="padding:6px 4px; color:#6B7280;">2.2 th</td></tr>
-        <tr style="border-bottom:1px solid #F0F2FA;"><td style="padding:6px 4px;">Operations</td><td style="padding:6px 4px;">201</td><td style="padding:6px 4px;">2.5% (n=5)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">2.0 th</td><td style="padding:6px 4px; color:#6B7280;">2.6 th</td></tr>
-        <tr><td style="padding:6px 4px;">IT</td><td style="padding:6px 4px;">126</td><td style="padding:6px 4px;">1.6% (n=2)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">2.9 th</td><td style="padding:6px 4px; color:#6B7280;">3.5 th</td></tr>
+        <tr class="buRow" data-bu="HR" style="border-bottom:1px solid #F0F2FA; transition:opacity .15s;"><td style="padding:6px 4px;">HR</td><td style="padding:6px 4px;">145</td><td style="padding:6px 4px;">1.4% (n=2)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">2.6 th</td><td style="padding:6px 4px; color:#6B7280;">3.1 th</td></tr>
+        <tr class="buRow" data-bu="Finance" style="border-bottom:1px solid #F0F2FA; transition:opacity .15s;"><td style="padding:6px 4px;">Finance</td><td style="padding:6px 4px;">118</td><td style="padding:6px 4px;">1.7% (n=2)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">2.4 th</td><td style="padding:6px 4px; color:#6B7280;">2.9 th</td></tr>
+        <tr class="buRow" data-bu="Marketing" style="border-bottom:1px solid #F0F2FA; background:#FFF0F6; transition:opacity .15s;"><td style="padding:6px 4px;">Marketing</td><td style="padding:6px 4px;">152</td><td style="padding:6px 4px;">2.6% (n=4)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">1.6 th</td><td style="padding:6px 4px; color:#6B7280;">2.2 th</td></tr>
+        <tr class="buRow" data-bu="Operations" style="border-bottom:1px solid #F0F2FA; transition:opacity .15s;"><td style="padding:6px 4px;">Operations</td><td style="padding:6px 4px;">201</td><td style="padding:6px 4px;">2.5% (n=5)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">2.0 th</td><td style="padding:6px 4px; color:#6B7280;">2.6 th</td></tr>
+        <tr class="buRow" data-bu="IT" style="transition:opacity .15s;"><td style="padding:6px 4px;">IT</td><td style="padding:6px 4px;">126</td><td style="padding:6px 4px;">1.6% (n=2)</td><td style="padding:6px 4px; font-weight:700; color:#9A5A2E;">2.9 th</td><td style="padding:6px 4px; color:#6B7280;">3.5 th</td></tr>
       </table>
-      <div style="font-size:9px; color:#6B7280; margin-top:8px;">Median ditonjolkan (bold) sebagai acuan utama, Avg Tenure tetap ditampilkan sebagai pembanding.</div>
+      <div style="font-size:9px; color:#6B7280; margin-top:8px;">Median ditonjolkan (bold) sebagai acuan utama, Avg Tenure tetap ditampilkan sebagai pembanding. Baris akan menyorot otomatis mengikuti filter BU/FU di atas.</div>
     </div>
     <div class="head-only" style="display:none; background:#EAEDF7; border:1px solid #D6DCF2; border-radius:12px; padding:16px;">
       <div style="font-weight:700; margin-bottom:8px; font-size:12.5px;">Unit Anda: Marketing</div>
@@ -391,7 +435,62 @@ function setRole(role){
   document.getElementById('role-head').style.color = role==='head' ? '#fff':'#3A4568';
   document.querySelectorAll('.admin-only').forEach(el=> el.style.display = role==='admin' ? '' : 'none');
   document.querySelectorAll('.head-only').forEach(el=> el.style.display = role==='head' ? 'block' : 'none');
-  document.getElementById('filterBU').textContent = role==='head' ? '🏫 Unit Anda: Marketing (terkunci)' : '🏫 BU/FU: Semua ▾';
+  const buBtn = document.getElementById('fBUBtn');
+  if(role==='head'){
+    buBtn.disabled = true;
+    document.getElementById('fBULabel').textContent = 'Marketing (terkunci)';
+    selectBU('Marketing');
+  } else {
+    buBtn.disabled = false;
+    document.getElementById('fBULabel').textContent = 'Semua';
+    selectBU('Semua');
+  }
+}
+
+// ===== Filter dropdown interactions =====
+function toggleFilter(id){
+  const btn = document.querySelector('[onclick="toggleFilter(\''+id+'\')"]');
+  if(btn && btn.disabled) return;
+  const menu = document.getElementById(id);
+  const isOpen = menu.style.display === 'block';
+  document.querySelectorAll('.filterMenu').forEach(m=>m.style.display='none');
+  menu.style.display = isOpen ? 'none' : 'block';
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.filterWrap')){
+    document.querySelectorAll('.filterMenu').forEach(m=>m.style.display='none');
+  }
+});
+function selectFilter(id, label){
+  document.getElementById(id+'Label').textContent = label;
+  document.getElementById(id).style.display='none';
+}
+const BU_DATA = {
+  'Semua':     {total:742, turnover:18.4, badge:'waspada', engagement:78},
+  'HR':        {total:145, turnover:11.0, badge:'aman',      engagement:81},
+  'Finance':   {total:118, turnover:12.4, badge:'aman',      engagement:79},
+  'Marketing': {total:152, turnover:24.8, badge:'perhatian', engagement:66},
+  'Operations':{total:201, turnover:19.2, badge:'waspada',   engagement:79},
+  'IT':        {total:126, turnover:10.6, badge:'aman',      engagement:85}
+};
+function selectBU(unit){
+  document.getElementById('fBULabel').textContent = unit;
+  document.getElementById('fBU').style.display='none';
+  const d = BU_DATA[unit] || BU_DATA['Semua'];
+  const totalEl = document.getElementById('ovTotalKaryawan');
+  const turnEl = document.getElementById('ovTurnoverValue');
+  const engEl = document.getElementById('ovEngagementValue');
+  const badgeEl = document.getElementById('ovTurnoverBadge');
+  if(totalEl) totalEl.textContent = d.total;
+  if(turnEl) turnEl.textContent = d.turnover + '%';
+  if(engEl) engEl.textContent = d.engagement;
+  if(badgeEl){
+    badgeEl.className = 'thbadge badge-' + d.badge;
+    badgeEl.textContent = '● ' + (d.badge==='aman' ? 'Aman' : d.badge==='waspada' ? 'Waspada' : 'Perhatian');
+  }
+  document.querySelectorAll('.buRow').forEach(row=>{
+    row.style.opacity = (unit==='Semua' || row.dataset.bu===unit) ? '1' : '0.3';
+  });
 }
 function populatePeriodSelect(p){
   const sel = document.getElementById('periodValue');
